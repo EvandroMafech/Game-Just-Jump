@@ -167,7 +167,6 @@ function changeSpeed(){
         if(speed == 12)framesToGeneratePlatform = 50
 
         speedCount = 0
-       // console.log(`speed = ${speed} Platform = ${framesToGeneratePlatform}`)    
        }
 }
 
@@ -187,7 +186,7 @@ function gameLoop(){
     leftCtx.clearRect(0,0,leftCanvas.width,leftCanvas.height)
     rightCtx.clearRect(0,0,leftCanvas.width,leftCanvas.height)
 
-   //checkGameOver()
+   checkGameOver()
 
     leftPlatformArray.forEach( platform => {
         platform.draw()

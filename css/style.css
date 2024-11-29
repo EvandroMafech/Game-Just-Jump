@@ -38,7 +38,7 @@ h2{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-image: url("/images/background2.png");
+    background-image: url("./images/background2.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -61,7 +61,7 @@ h2{
 .right-screen{
     flex: 1;
     display:flex;
-    background-image: url("/images/background.png");
+    background-image: url("./images/background.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

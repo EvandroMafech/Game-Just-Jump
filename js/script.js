@@ -1,5 +1,5 @@
 import Platform from "./Platform.js"
-import Player from "./player.js"
+import Player from "./Player.js"
 
 const leftCanvas = document.querySelector(".left-canvas")
 const startGameScreen = document.querySelector(".start-game")

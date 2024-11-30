@@ -19,7 +19,6 @@ class Platform{
             }
 
             update(){
-
                 this.position.y += this.speed
             }
             

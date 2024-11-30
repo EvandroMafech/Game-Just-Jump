@@ -1,9 +1,9 @@
 const jumpAudio = new Audio("sounds/Jump.wav")
 
 class Player{
-    constructor(image,ctx,cordinates,spritewidth,spriteHeight,spriteOffset){
+    constructor(x,image,ctx,cordinates,spritewidth,spriteHeight,spriteOffset){
         this.position = {
-            x: 200,
+            x: x,
             y: -200
         }
         this.MoveAction = {
@@ -54,10 +54,8 @@ animate(){
     const ctx = this.ctx
     const cordinates = this.cordinates
     let position = Math.floor(this.gameFrame/this.staggerFrames)%cordinates[this.spriteState].location.length
-
     let frameX = position*this.spriteWidth
     let frameY = cordinates[this.spriteState].location[position].y
-
     ctx.drawImage(this.spriteImage,frameX,frameY, this.spriteWidth,this.spriteHeight, this.position.x, this.position.y , this.spriteWidth*this.spriteSize,this.spriteHeight*this.spriteSize) //(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 }
 
@@ -75,8 +73,7 @@ checkPlatform(platform){
         const playerOffSetBottom = this.spriteHeight*this.spriteSize - this.spriteOffset.bottom*this.spriteSize
         const playerLeftX = this.position.x + this.spriteOffset.left*this.spriteSize
         const playerRightX = this.position.x + this.spriteWidth*this.spriteSize - this.spriteOffset.right*this.spriteSize
-        
-
+     
         const topPlatform = platform.position.y
         const leftPlatform = platform.position.x
         const rightPlatform = platform.position.x + platform.width
@@ -85,9 +82,8 @@ checkPlatform(platform){
         playerBottomY <= topPlatform + platform.height &&
         playerRightX >= leftPlatform &&
         playerLeftX <= rightPlatform &&
-        this.velocityY > 0 
-      )
-    {
+        this.velocityY > 0){
+
         this.playerState.isOnPlatform = true
         this.velocityY = 0
         this.position.y = platform.position.y - playerOffSetBottom + platform.speed
@@ -95,10 +91,7 @@ checkPlatform(platform){
         this.spriteState = "idle"
     }
     this.playerState.isOnPlatform = false
-
-
 }
-
 
 applyGravity(){
 
@@ -108,8 +101,6 @@ applyGravity(){
     }
 }
 
-
 }
-
 
 export default Player

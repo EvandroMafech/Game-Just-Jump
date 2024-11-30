@@ -8,12 +8,14 @@ const leftScreen = document.querySelector(".left-screen")
 const rightScreen = document.querySelector(".right-screen")
 const leftCtx = leftCanvas.getContext("2d")
 const rightCtx = rightCanvas.getContext("2d")
-
+const fallingAudio = new Audio("sounds/falling.wav")
 const boySpriteSheet = new Image()
 const girlSpriteSheet = new Image()
 const platformImage = new Image()
 
-const fallingAudio = new Audio("sounds/falling.wav")
+boySpriteSheet.src = "images/boySprites.png"
+girlSpriteSheet.src = "images/girlSprites.png"
+platformImage.src = "images/platform.png"
 
 
 let frameCount = 80
@@ -21,25 +23,21 @@ let framesToGeneratePlatform = 130
 let speed = 3
 let speedCount = 0
 let gameStarted = false
+let gameOver = false
+let animationId; 
+let running = true;
+let leftPlatformArray = []
+let rightPlatformArray = []
 
-
-boySpriteSheet.src = "images/boySprites.png"
-girlSpriteSheet.src = "images/girlSprites.png"
-platformImage.src = "images/platform.png"
-
-const leftPlatformArray = []
-const rightPlatformArray = []
 const boySpriteCoordinates = []
 const girlSpriteCoordinates = []
-
 const platformWidth = 220
 const platformHeight = 20
-
 const boyStripeWidth = 614
 const boyStripeHeigth = 564
-
 const girlStripeWidth = 416
 const girlStripeHeigth = 454
+
 
 const boySpriteOffset = {
     bottom: 63,
@@ -103,11 +101,11 @@ girlStripesInfo.forEach((content,index) => {
 })
 
 
-const boyPlayer = new Player(boySpriteSheet,leftCtx,boySpriteCoordinates,boyStripeWidth,boyStripeHeigth,boySpriteOffset) 
-const girlPlayer = new Player(girlSpriteSheet,rightCtx,girlSpriteCoordinates,girlStripeWidth,girlStripeHeigth,girlSpriteOffset) 
+const boyPlayer = new Player(leftCanvas.width/2,boySpriteSheet,leftCtx,boySpriteCoordinates,boyStripeWidth,boyStripeHeigth,boySpriteOffset) 
+const girlPlayer = new Player(rightCanvas.width/2,girlSpriteSheet,rightCtx,girlSpriteCoordinates,girlStripeWidth,girlStripeHeigth,girlSpriteOffset) 
 
-const leftPlatform = new Platform(150,200,platformWidth,platformHeight,leftCtx,platformImage,speed)
-const rightPlatform = new Platform(150,200,platformWidth,platformHeight,rightCtx,platformImage,speed)
+const leftPlatform = new Platform(leftCanvas.width/2,200,platformWidth,platformHeight,leftCtx,platformImage,speed)
+const rightPlatform = new Platform(rightCanvas.width/2,200,platformWidth,platformHeight,rightCtx,platformImage,speed)
 
 let lastLeftPlatformXpos = leftPlatform.position.x
 let lastRightPlatformXpos = rightPlatform.position.x
@@ -141,17 +139,59 @@ function generatePlatform(){
     }
 }
 
+function resetGame(){
+    
+    console.log("reset")
+    leftCtx.clearRect(0,0,leftCanvas.width,leftCanvas.height)
+    rightCtx.clearRect(0,0,leftCanvas.width,leftCanvas.height)
+    
+    leftScreen.classList.remove("grayFilter")
+    rightScreen.classList.remove("grayFilter") 
+
+    startGameScreen.style.display = "flex"
+   
+    gameStarted = false
+   
+    leftPlatformArray = []
+    rightPlatformArray = []
+   
+    frameCount = 0
+    framesToGeneratePlatform = 130
+    speed = 3
+    speedCount = 0
+
+    boyPlayer.velocityY =0
+    girlPlayer.velocityY =0
+    boyPlayer.position.x = leftCanvas.width/2  
+    boyPlayer.position.y = -250  
+    girlPlayer.position.x = rightCanvas.width/2
+    girlPlayer.position.y = -250
+
+    const resetLeftplatform = new Platform(leftCanvas.width/2,0,platformWidth,platformHeight,leftCtx,platformImage,speed)
+    const resetRightplatform = new Platform(rightCanvas.width/2,0,platformWidth,platformHeight,rightCtx,platformImage,speed)
+ 
+    leftPlatformArray.push(resetLeftplatform)
+    rightPlatformArray.push(resetRightplatform)
+
+}
+
 function checkGameOver(){
-    if(boyPlayer.position.y > 1000 || girlPlayer.position.y > 1000)
+    if(boyPlayer.position.y > 1000 || girlPlayer.position.y > 1000 && gameOver == false)
     {
-      
+        
         if(boyPlayer.position.y > 1000) leftScreen.classList.add("grayFilter")
         if(girlPlayer.position.y > 1000) rightScreen.classList.add("grayFilter")    
-        fallingAudio.play()    
-        setTimeout(() => {
-            location.reload()
-        },2000)
-    }
+     
+            fallingAudio.play()    
+    
+            if(!gameOver){
+              setTimeout(() => {
+                stopGameLoop()
+                resetGame()
+            }, 2000);
+            gameOver = true
+        }
+        }
 }
 
 function changeSpeed(){
@@ -181,12 +221,20 @@ function resizeCanvas(){
 }
 
 
+function stopGameLoop() {
+    running = false
+    cancelAnimationFrame(animationId)  
+}
+
+
 function gameLoop(){
   
+    if (!running) return
+
     leftCtx.clearRect(0,0,leftCanvas.width,leftCanvas.height)
     rightCtx.clearRect(0,0,leftCanvas.width,leftCanvas.height)
 
-   checkGameOver()
+    checkGameOver()
 
     leftPlatformArray.forEach( platform => {
         platform.draw()
@@ -199,6 +247,7 @@ function gameLoop(){
         platform.update()
         girlPlayer.checkPlatform(platform)
     })
+
 
     leftPlatform.draw()
     rightPlatform.draw()
@@ -223,7 +272,6 @@ function gameLoop(){
     if(girlPlayer.MoveAction.jump) girlPlayer.jump()     
     if(girlPlayer.MoveAction.left || girlPlayer.MoveAction.right) girlPlayer.move()
     if(boyPlayer.MoveAction.left || boyPlayer.MoveAction.right) boyPlayer.move()
-
  
     generatePlatform() 
     changeSpeed()
@@ -231,7 +279,7 @@ function gameLoop(){
     frameCount++
     speedCount++
   
-    window.requestAnimationFrame(gameLoop)
+    animationId = window.requestAnimationFrame(gameLoop)
 }
 
 resizeCanvas()
@@ -256,7 +304,9 @@ window.addEventListener("keydown",(event) => {
     if(key == "enter" && gameStarted == false) {
         startGameScreen.style.display = "none"
         gameStarted = true
-        gameLoop()
+        running = true
+        gameOver = false
+       animationId = window.requestAnimationFrame(gameLoop)
     }
 })
 
